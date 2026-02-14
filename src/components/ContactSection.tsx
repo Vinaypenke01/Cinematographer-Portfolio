@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Instagram, MessageCircle, Calendar, Send, CheckCircle, Loader2 } from "lucide-react";
 import { z } from "zod";
-import contactBg from "@/assets/contact-bg.jpg";
+import contactBg from "@/assets/contact_bg.jpg";
 
 const bookingSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100),
