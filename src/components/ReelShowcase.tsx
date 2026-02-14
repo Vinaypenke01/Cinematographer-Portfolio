@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, forwardRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, X, Volume2, VolumeX } from "lucide-react";
 import LazyVideo from "@/components/ui/LazyVideo";
@@ -71,15 +71,15 @@ const reels: Reel[] = [
   { id: 19, category: "Reels", title: "Creative Reel VII", views: "3.5M", videoUrl: reel7 },
 ];
 
-const ReelCard = ({
-  reel,
-  index,
-  onSelect,
-}: {
+const ReelCard = forwardRef<HTMLDivElement, {
   reel: Reel;
   index: number;
   onSelect: (id: number) => void;
-}) => {
+}>(({
+  reel,
+  index,
+  onSelect,
+}, ref) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isHovering, setIsHovering] = useState(false);
 
@@ -102,6 +102,7 @@ const ReelCard = ({
   return (
 
     <motion.div
+      ref={ref}
       layout
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -163,7 +164,9 @@ const ReelCard = ({
       </div>
     </motion.div>
   );
-};
+});
+
+ReelCard.displayName = "ReelCard";
 
 const ReelShowcase = () => {
   const [activeCategory, setActiveCategory] = useState("All");

@@ -7,8 +7,11 @@ const CursorFollower = () => {
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-      setIsVisible(true);
+      // Only show custom cursor on fine pointer devices (mouse)
+      if (window.matchMedia("(pointer: fine)").matches) {
+        setMousePosition({ x: e.clientX, y: e.clientY });
+        setIsVisible(true);
+      }
     };
 
     const handleMouseLeave = () => setIsVisible(false);
