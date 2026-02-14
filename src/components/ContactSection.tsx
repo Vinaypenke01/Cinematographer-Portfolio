@@ -286,6 +286,9 @@ const ContactSection = () => {
           <p className="font-body text-xs text-muted-foreground tracking-wider">
             © 2025 SKB Visuals. All rights reserved.
           </p>
+          <p className="font-body text-xs text-muted-foreground tracking-wider mt-2">
+            Made by <a href="https://digitalcore.co.in/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Digital Core Services</a>
+          </p>
         </motion.div>
       </div>
     </section>
