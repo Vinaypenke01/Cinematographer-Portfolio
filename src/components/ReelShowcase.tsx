@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, X, Volume2, VolumeX } from "lucide-react";
+import LazyVideo from "@/components/ui/LazyVideo";
 
 // Cinematic Videos
 import cinematic1 from "@/assets/Videos/Cinematic/Cinematic1.mp4";
@@ -99,6 +100,7 @@ const ReelCard = ({
   }, []);
 
   return (
+
     <motion.div
       layout
       initial={{ opacity: 0, scale: 0.9 }}
@@ -116,14 +118,13 @@ const ReelCard = ({
     >
       {/* Video preview - displayed directly */}
       {reel.videoUrl ? (
-        <video
+        <LazyVideo
           ref={videoRef}
           src={reel.videoUrl}
           muted
           loop
           playsInline
-          preload="metadata"
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          className="transition-transform duration-700 group-hover:scale-110"
         />
       ) : (
         <img
@@ -228,8 +229,8 @@ const ReelShowcase = () => {
             key={cat}
             onClick={() => handleCategoryChange(cat)}
             className={`font-body text-xs tracking-[0.2em] uppercase px-5 py-2 rounded-full border transition-all duration-300 ${activeCategory === cat
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-border text-muted-foreground hover:border-primary hover:text-primary"
+              ? "border-primary bg-primary text-primary-foreground"
+              : "border-border text-muted-foreground hover:border-primary hover:text-primary"
               }`}
           >
             {cat}
