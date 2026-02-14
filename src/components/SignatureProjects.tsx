@@ -77,64 +77,64 @@ const ProjectCard = ({
   }, []);
 
   return (
-import LazyVideo from "@/components/ui/LazyVideo";
 
-  <motion.div
-    initial={{ opacity: 0, y: 40 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.5, delay: index * 0.1 }}
-    className="group cursor-pointer"
-    onMouseEnter={handleMouseEnter}
-    onMouseLeave={handleMouseLeave}
-    onClick={() => onSelect(project)}
-  >
-    {/* Poster card */}
-    <div className="relative overflow-hidden rounded-xl aspect-[2/3]">
-      {/* Video Preview */}
-      <LazyVideo
-        ref={videoRef}
-        src={project.videoUrl}
-        muted
-        loop
-        playsInline
-        className="transition-transform duration-700 group-hover:scale-110"
-      />
 
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent pointer-events-none" />
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      className="group cursor-pointer"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onClick={() => onSelect(project)}
+    >
+      {/* Poster card */}
+      <div className="relative overflow-hidden rounded-xl aspect-[2/3]">
+        {/* Video Preview */}
+        <LazyVideo
+          ref={videoRef}
+          src={project.videoUrl}
+          muted
+          loop
+          playsInline
+          className="transition-transform duration-700 group-hover:scale-110"
+        />
 
-      {/* Info */}
-      <div className="absolute bottom-0 left-0 right-0 p-5 pointer-events-none">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="px-2 py-0.5 rounded-sm text-[10px] font-body tracking-wider uppercase bg-primary text-primary-foreground">
-            {project.genre}
-          </span>
-          <span className="text-[10px] font-body text-muted-foreground">
-            {project.year}
-          </span>
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent pointer-events-none" />
+
+        {/* Info */}
+        <div className="absolute bottom-0 left-0 right-0 p-5 pointer-events-none">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="px-2 py-0.5 rounded-sm text-[10px] font-body tracking-wider uppercase bg-primary text-primary-foreground">
+              {project.genre}
+            </span>
+            <span className="text-[10px] font-body text-muted-foreground">
+              {project.year}
+            </span>
+          </div>
+          <h3 className="font-display text-2xl text-foreground">
+            {project.title}
+          </h3>
+          <div className="flex items-center gap-4 mt-2">
+            <span className="flex items-center gap-1 text-muted-foreground text-xs font-body">
+              <Clock size={12} /> {project.duration}
+            </span>
+            <span className="flex items-center gap-1 text-muted-foreground text-xs font-body">
+              <MapPin size={12} /> {project.location}
+            </span>
+          </div>
         </div>
-        <h3 className="font-display text-2xl text-foreground">
-          {project.title}
-        </h3>
-        <div className="flex items-center gap-4 mt-2">
-          <span className="flex items-center gap-1 text-muted-foreground text-xs font-body">
-            <Clock size={12} /> {project.duration}
-          </span>
-          <span className="flex items-center gap-1 text-muted-foreground text-xs font-body">
-            <MapPin size={12} /> {project.location}
-          </span>
+
+        {/* Hover play overlay */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+          <div className="w-16 h-16 rounded-full glass-card flex items-center justify-center glow-border">
+            <Play className="text-primary ml-1" size={24} />
+          </div>
         </div>
       </div>
-
-      {/* Hover play overlay */}
-      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-        <div className="w-16 h-16 rounded-full glass-card flex items-center justify-center glow-border">
-          <Play className="text-primary ml-1" size={24} />
-        </div>
-      </div>
-    </div>
-  </motion.div>
+    </motion.div>
   );
 };
 
