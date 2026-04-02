@@ -1,7 +1,31 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import droneShot from "@/assets/drone-shot.jpg";
+import client from "../../tina/__generated__/client";
+
+const droneShotFallback = "/media/drone-shot.jpg";
 
 const BehindCamera = () => {
+  const [data, setData] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await client.queries.homepage({ relativePath: "index.md" });
+        setData(response.data.homepage.about);
+      } catch (error) {
+        console.error("Error fetching about data:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const statsList = data?.stats || [
+    { label: "Years Experience", value: "5+" },
+    { label: "Happy Clients", value: "200+" },
+    { label: "Awards Won", value: "12" },
+    { label: "Cities Covered", value: "30+" },
+  ];
+
   return (
     <section id="about" className="section-padding">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -15,7 +39,7 @@ const BehindCamera = () => {
         >
           <div className="relative overflow-hidden rounded-2xl">
             <img
-              src={droneShot}
+              src={data?.profileImage || droneShotFallback}
               alt="Drone in flight"
               className="w-full object-cover aspect-square"
             />
@@ -23,9 +47,9 @@ const BehindCamera = () => {
           </div>
           {/* Floating stat */}
           <div className="absolute -bottom-6 -right-4 glass-card glow-border rounded-xl p-5">
-            <p className="font-display text-4xl gradient-text">150+</p>
+            <p className="font-display text-4xl gradient-text">{statsList[1]?.value || "150+"}</p>
             <p className="font-body text-xs text-muted-foreground tracking-wider uppercase">
-              Projects Delivered
+              {statsList[1]?.label || "Projects Delivered"}
             </p>
           </div>
         </motion.div>
@@ -39,29 +63,20 @@ const BehindCamera = () => {
           className="space-y-6"
         >
           <p className="font-body text-xs tracking-[0.4em] uppercase text-primary">
-            Behind The Camera
+            {data?.title || "Behind The Camera"}
           </p>
           <h2 className="font-display text-5xl md:text-6xl text-foreground leading-tight">
-            Who is SKB?
+            {data?.subtitle || "Who is SKB?"}
           </h2>
           <p className="font-body text-muted-foreground leading-relaxed">
-            A visual storyteller who sees the world through a cinematic lens.
-            Every frame is crafted to evoke emotion, every shot designed to tell
-            a story that words alone cannot capture.
+            {data?.bioParagraph1 || "A visual storyteller who sees the world through a cinematic lens. Every frame is crafted to evoke emotion, every shot designed to tell a story that words alone cannot capture."}
           </p>
           <p className="font-body text-muted-foreground leading-relaxed">
-            From aerial drone perspectives soaring over untouched landscapes to
-            intimate wedding moments frozen in time — the goal is always the
-            same: create something unforgettable.
+            {data?.bioParagraph2 || "From aerial drone perspectives soaring over untouched landscapes to intimate wedding moments frozen in time — the goal is always the same: create something unforgettable."}
           </p>
           <div className="grid grid-cols-2 gap-6 pt-4">
-            {[
-              { label: "Years Experience", value: "5+" },
-              { label: "Happy Clients", value: "200+" },
-              { label: "Awards Won", value: "12" },
-              { label: "Cities Covered", value: "30+" },
-            ].map((stat) => (
-              <div key={stat.label}>
+            {statsList.map((stat: any, index: number) => (
+              <div key={index}>
                 <p className="font-display text-3xl gradient-text">{stat.value}</p>
                 <p className="font-body text-xs text-muted-foreground tracking-wider uppercase mt-1">
                   {stat.label}

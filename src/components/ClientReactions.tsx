@@ -1,15 +1,22 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-
-const reactions = [
-  { user: "@travel_vibes", avatar: "🌍", text: "🔥 insane visuals bro", time: "2h" },
-  { user: "@brand.studio", avatar: "🎯", text: "next level drone shots 🚁", time: "5h" },
-  { user: "@weddingdiaries", avatar: "💍", text: "made our wedding look like a MOVIE 🎬", time: "1d" },
-  { user: "@filmmaker.pro", avatar: "🎥", text: "the color grading is absolutely insane", time: "2d" },
-  { user: "@musiclabel_hq", avatar: "🎵", text: "best music video we've ever had, period.", time: "3d" },
-  { user: "@startup.india", avatar: "🚀", text: "our brand film went viral thanks to SKB 🙌", time: "1w" },
-];
+import client from "../../tina/__generated__/client";
 
 const ClientReactions = () => {
+  const [reactions, setReactions] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchReactions = async () => {
+      try {
+        const response = await client.queries.homepage({ relativePath: "index.md" });
+        setReactions(response.data.homepage.testimonials || []);
+      } catch (error) {
+        console.error("Error fetching testimonials data:", error);
+      }
+    };
+    fetchReactions();
+  }, []);
+
   return (
     <section className="section-padding">
       <motion.div

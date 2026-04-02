@@ -1,12 +1,14 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import heroBg from "@/assets/hero-bg.jpg";
+import client from "../../tina/__generated__/client";
+
+const heroBgFallback = "/media/hero-bg.jpg";
 
 const roles = ["Editor", "Drone Pilot", "Cinematographer", "Creator"];
 
 const HeroSection = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [data, setData] = useState<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const mouseX = useMotionValue(0);
@@ -23,6 +25,20 @@ const HeroSection = () => {
     return () => window.removeEventListener("mousemove", handleMouse);
   }, [mouseX, mouseY]);
 
+  useEffect(() => {
+    const fetchGlobal = async () => {
+      try {
+        const response = await client.queries.homepage({ relativePath: "index.md" });
+        setData(response.data.homepage.hero);
+      } catch (error) {
+        console.error("Error fetching hero data:", error);
+      }
+    };
+    fetchGlobal();
+  }, []);
+
+  const bgImage = data?.backgroundMedia || heroBgFallback;
+
   return (
     <section ref={containerRef} className="relative h-screen w-full overflow-hidden">
       {/* Parallax background */}
@@ -31,7 +47,7 @@ const HeroSection = () => {
         style={{ x: bgX, y: bgY }}
       >
         <img
-          src={heroBg}
+          src={bgImage}
           alt="Cinematic background"
           className="w-full h-full object-cover"
         />
@@ -56,7 +72,7 @@ const HeroSection = () => {
           transition={{ duration: 1, delay: 0.3 }}
         >
           <p className="font-body text-sm md:text-base tracking-[0.4em] uppercase text-primary mb-6">
-            Visual Storyteller
+            {data?.titleLine1 || "Visual Storyteller"}
           </p>
         </motion.div>
 
@@ -64,10 +80,10 @@ const HeroSection = () => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.2, delay: 0.5 }}
-          className="glitch-text font-display text-7xl md:text-[10rem] lg:text-[12rem] leading-none glow-text text-foreground"
-          data-text="SKB"
+          className="glitch-text font-display text-4xl md:text-7xl lg:text-[8rem] leading-none glow-text text-foreground"
+          data-text={data?.titleLine2 || "SKB"}
         >
-          SKB
+          {data?.titleLine2 || "SKB"}
         </motion.h1>
 
         <motion.div
@@ -76,16 +92,22 @@ const HeroSection = () => {
           transition={{ duration: 0.8, delay: 1 }}
           className="flex flex-wrap justify-center items-center gap-3 md:gap-4 mt-8"
         >
-          {roles.map((role, i) => (
-            <span key={role} className="flex items-center gap-3 md:gap-4">
-              <span className="font-body text-sm md:text-lg tracking-[0.3em] uppercase text-muted-foreground">
-                {role}
-              </span>
-              {i < roles.length - 1 && (
-                <span className="w-1 h-1 rounded-full bg-primary" />
-              )}
+          {data?.subtitle ? (
+            <span className="font-body text-sm md:text-lg tracking-[0.3em] uppercase text-muted-foreground mt-4 block">
+              {data?.subtitle}
             </span>
-          ))}
+          ) : (
+            roles.map((role, i) => (
+              <span key={role} className="flex items-center gap-3 md:gap-4">
+                <span className="font-body text-sm md:text-lg tracking-[0.3em] uppercase text-muted-foreground">
+                  {role}
+                </span>
+                {i < roles.length - 1 && (
+                  <span className="w-1 h-1 rounded-full bg-primary" />
+                )}
+              </span>
+            ))
+          )}
         </motion.div>
 
         {/* Scroll indicator */}

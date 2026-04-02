@@ -1,61 +1,17 @@
-import { useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Clock, Film, Play, X, Volume2, VolumeX } from "lucide-react";
+import { MapPin, Clock, Play, X, Volume2, VolumeX } from "lucide-react";
 import LazyVideo from "@/components/ui/LazyVideo";
-
-// Import videos
-import weddingVideo from "@/assets/Videos/Events/Event1.mp4";
-import travelVideo from "@/assets/Videos/Drone Shots/Drone1.mp4";
-import brandVideo from "@/assets/Videos/Cinematic/Cinematic2.mp4";
-import musicVideo from "@/assets/Videos/Reels/Reel1.mp4";
-
-const projects = [
-  {
-    id: 1,
-    title: "Eternal Vows",
-    videoUrl: weddingVideo,
-    duration: "4:32",
-    location: "Udaipur, India",
-    genre: "Wedding",
-    year: "2025",
-  },
-  {
-    id: 2,
-    title: "The Mountain Trail",
-    videoUrl: travelVideo,
-    duration: "6:15",
-    location: "Ladakh, India",
-    genre: "Travel",
-    year: "2024",
-  },
-  {
-    id: 3,
-    title: "NOIR Collection",
-    videoUrl: brandVideo,
-    duration: "2:48",
-    location: "Mumbai, India",
-    genre: "Brand Shoot",
-    year: "2025",
-  },
-  {
-    id: 4,
-    title: "Stage Ignite",
-    videoUrl: musicVideo,
-    duration: "3:55",
-    location: "Delhi, India",
-    genre: "Music Video",
-    year: "2024",
-  },
-];
+import client from "../../tina/__generated__/client";
 
 const ProjectCard = ({
   project,
   index,
   onSelect,
 }: {
-  project: (typeof projects)[0];
+  project: any;
   index: number;
-  onSelect: (project: (typeof projects)[0]) => void;
+  onSelect: (project: any) => void;
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isHovering, setIsHovering] = useState(false);
@@ -77,8 +33,6 @@ const ProjectCard = ({
   }, []);
 
   return (
-
-
     <motion.div
       initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -139,9 +93,23 @@ const ProjectCard = ({
 };
 
 const SignatureProjects = () => {
-  const [selectedProject, setSelectedProject] = useState<(typeof projects)[0] | null>(null);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [selectedProject, setSelectedProject] = useState<any | null>(null);
   const [isMuted, setIsMuted] = useState(true);
   const modalVideoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await client.queries.projectConnection();
+        const edges = response.data.projectConnection.edges || [];
+        setProjects(edges.map((edge: any) => edge.node));
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      }
+    };
+    fetchProjects();
+  }, []);
 
   const toggleMute = useCallback(() => {
     setIsMuted((prev) => {
@@ -172,7 +140,7 @@ const SignatureProjects = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
         {projects.map((project, i) => (
           <ProjectCard
-            key={project.id}
+            key={project.id || i}
             project={project}
             index={i}
             onSelect={setSelectedProject}

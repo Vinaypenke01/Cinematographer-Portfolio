@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Instagram, MessageCircle, Calendar, Send, CheckCircle, Loader2 } from "lucide-react";
 import { z } from "zod";
-import contactBg from "@/assets/contact_bg.jpg";
+import client from "../../tina/__generated__/client";
+
+const contactBgFallback = "/media/contact_bg.jpg";
 
 const bookingSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100),
@@ -29,6 +31,7 @@ const socialButtons = [
 ];
 
 const ContactSection = () => {
+  const [data, setData] = useState<any>(null);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState<Partial<BookingData>>({
     name: "",
@@ -40,6 +43,18 @@ const ContactSection = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  useEffect(() => {
+    const fetchGlobal = async () => {
+      try {
+        const response = await client.queries.homepage({ relativePath: "index.md" });
+        setData(response.data.homepage.contact);
+      } catch (error) {
+        console.error("Error fetching contact data:", error);
+      }
+    };
+    fetchGlobal();
+  }, []);
 
   const handleChange = (field: keyof BookingData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -58,7 +73,7 @@ const ContactSection = () => {
 
     const result = bookingSchema.safeParse(formData);
     if (!result.success) {
-      const fieldErrors: Record<string, string> = {};
+      const fieldErrors: Record<string, string> = { ...errors };
       result.error.issues.forEach((issue) => {
         const field = issue.path[0] as string;
         fieldErrors[field] = issue.message;
@@ -87,7 +102,7 @@ const ContactSection = () => {
       {/* Background */}
       <div className="absolute inset-0">
         <img
-          src={contactBg}
+          src={contactBgFallback}
           alt="Contact background"
           className="w-full h-full object-cover"
         />
@@ -106,12 +121,26 @@ const ContactSection = () => {
           <p className="font-body text-xs tracking-[0.4em] uppercase text-primary mb-6">
             Let's Create Together
           </p>
-          <h2 className="font-display text-6xl md:text-8xl text-foreground glow-text mb-4">
-            Ready?
+          <h2 className="font-display text-3xl md:text-5xl text-foreground mb-4">
+            Ready to tell your story?
           </h2>
-          <p className="font-body text-muted-foreground max-w-md mx-auto mb-12">
-            Got a story to tell? Let's make it cinematic.
-          </p>
+          <div className="flex flex-col items-center gap-2 mb-12">
+            {data?.email && (
+              <a href={`mailto:${data.email}`} className="font-body text-muted-foreground hover:text-primary transition-colors">
+                {data.email}
+              </a>
+            )}
+            {data?.phone && (
+              <a href={`tel:${data.phone.replace(/\s+/g, '')}`} className="font-body text-muted-foreground hover:text-primary transition-colors">
+                {data.phone}
+              </a>
+            )}
+            {data?.location && (
+              <p className="font-body text-muted-foreground">
+                {data.location}
+              </p>
+            )}
+          </div>
         </motion.div>
 
         {/* Social buttons + Book a Shoot */}
@@ -128,7 +157,7 @@ const ContactSection = () => {
               href={btn.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="glow-button glass-card px-8 py-4 rounded-full flex items-center gap-3 font-body text-sm tracking-wider uppercase text-foreground hover:text-primary-foreground transition-colors duration-300 min-w-[220px] justify-center"
+              className="glass-card px-8 py-4 rounded-full flex items-center gap-3 font-body text-sm tracking-wider uppercase text-foreground hover:text-primary transition-colors duration-300 min-w-[220px] justify-center"
             >
               <btn.icon size={18} />
               {btn.label}
@@ -136,7 +165,7 @@ const ContactSection = () => {
           ))}
           <button
             onClick={() => setShowForm(!showForm)}
-            className="glow-button glass-card px-8 py-4 rounded-full flex items-center gap-3 font-body text-sm tracking-wider uppercase text-foreground hover:text-primary-foreground transition-colors duration-300 min-w-[220px] justify-center"
+            className="glass-card px-8 py-4 rounded-full flex items-center gap-3 font-body text-sm tracking-wider uppercase text-foreground hover:text-primary transition-colors duration-300 min-w-[220px] justify-center"
           >
             <Calendar size={18} />
             Book a Shoot
@@ -250,12 +279,6 @@ const ContactSection = () => {
                     />
                   </div>
 
-                  {errors.form && (
-                    <p className="text-destructive text-sm font-body text-center">
-                      {errors.form}
-                    </p>
-                  )}
-
                   <button
                     type="submit"
                     disabled={isSubmitting}
@@ -285,9 +308,6 @@ const ContactSection = () => {
           <p className="font-display text-2xl gradient-text mb-2">SKB</p>
           <p className="font-body text-xs text-muted-foreground tracking-wider">
             © 2025 SKB Visuals. All rights reserved.
-          </p>
-          <p className="font-body text-xs text-muted-foreground tracking-wider mt-2">
-            Made by <a href="https://digitalcore.co.in/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Digital Core Services</a>
           </p>
         </motion.div>
       </div>

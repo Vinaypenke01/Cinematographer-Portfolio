@@ -6,6 +6,7 @@ import SignatureProjects from "@/components/SignatureProjects";
 import BehindCamera from "@/components/BehindCamera";
 import ServicesSection from "@/components/ServicesSection";
 import ClientReactions from "@/components/ClientReactions";
+import BlogSection from "@/components/BlogSection";
 import ContactSection from "@/components/ContactSection";
 
 const Index = () => {
@@ -19,6 +20,7 @@ const Index = () => {
       <BehindCamera />
       <ServicesSection />
       <ClientReactions />
+      <BlogSection />
       <ContactSection />
     </div>
   );

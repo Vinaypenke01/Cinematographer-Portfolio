@@ -1,80 +1,24 @@
-import { useState, useRef, useCallback, forwardRef } from "react";
+import { useEffect, useState, useRef, useCallback, forwardRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, X, Volume2, VolumeX } from "lucide-react";
 import LazyVideo from "@/components/ui/LazyVideo";
-
-// Cinematic Videos
-import cinematic1 from "@/assets/Videos/Cinematic/Cinematic1.mp4";
-import cinematic2 from "@/assets/Videos/Cinematic/Cinematic2.mp4";
-import cinematic3 from "@/assets/Videos/Cinematic/Cinematic3.mp4";
-import cinematic4 from "@/assets/Videos/Cinematic/Cinematic4.mp4";
-import cinematicMain from "@/assets/Videos/Cinematic/cinematic.mp4";
-
-// Drone Videos
-import droneEvent from "@/assets/Videos/Drone Shots/Drone-Event.mp4";
-import drone1 from "@/assets/Videos/Drone Shots/Drone1.mp4";
-import drone2 from "@/assets/Videos/Drone Shots/Drone2.mp4";
-import drone3 from "@/assets/Videos/Drone Shots/Drone3.mp4";
-
-// Event Videos
-import event1 from "@/assets/Videos/Events/Event1.mp4";
-import event2 from "@/assets/Videos/Events/Event2.mp4";
-import event3 from "@/assets/Videos/Events/Event3.mp4";
-
-// Reels Videos
-import reel1 from "@/assets/Videos/Reels/Reel1.mp4";
-import reel2 from "@/assets/Videos/Reels/Reel2.mp4";
-import reel3 from "@/assets/Videos/Reels/Reel3.mp4";
-import reel4 from "@/assets/Videos/Reels/Reel4.mp4";
-import reel5 from "@/assets/Videos/Reels/Reel5.mp4";
-import reel6 from "@/assets/Videos/Reels/Reel6.mp4";
-import reel7 from "@/assets/Videos/Reels/Reel7.mp4";
+import client from "../../tina/__generated__/client";
 
 const categories = ["All", "Cinematic", "Drone Shots", "Events", "Reels"];
 
 interface Reel {
-  id: number;
+  id: string | number;
   thumb?: string;
   category: string;
   title: string;
   views: string;
   videoUrl: string;
-  youtubeId?: string;
 }
-
-const reels: Reel[] = [
-  // Cinematic
-  { id: 1, category: "Cinematic", title: "Cinematic Vision I", views: "1.2M", videoUrl: cinematic1 },
-  { id: 2, category: "Cinematic", title: "Cinematic Vision II", views: "980K", videoUrl: cinematic2 },
-  { id: 3, category: "Cinematic", title: "Cinematic Vision III", views: "1.5M", videoUrl: cinematic3 },
-  { id: 4, category: "Cinematic", title: "Cinematic Vision IV", views: "2.1M", videoUrl: cinematic4 },
-  { id: 5, category: "Cinematic", title: "Cinematic Masterpiece", views: "3.4M", videoUrl: cinematicMain },
-
-  // Drone Shots
-  { id: 6, category: "Drone Shots", title: "Drone Event Coverage", views: "890K", videoUrl: droneEvent },
-  { id: 7, category: "Drone Shots", title: "Aerial Perspective I", views: "750K", videoUrl: drone1 },
-  { id: 8, category: "Drone Shots", title: "Aerial Perspective II", views: "620K", videoUrl: drone2 },
-  { id: 9, category: "Drone Shots", title: "Aerial Perspective III", views: "1.1M", videoUrl: drone3 },
-
-  // Events
-  { id: 10, category: "Events", title: "Event Highlights I", views: "2.8M", videoUrl: event1 },
-  { id: 11, category: "Events", title: "Event Highlights II", views: "1.9M", videoUrl: event2 },
-  { id: 12, category: "Events", title: "Event Highlights III", views: "2.3M", videoUrl: event3 },
-
-  // Reels
-  { id: 13, category: "Reels", title: "Creative Reel I", views: "4.5M", videoUrl: reel1 },
-  { id: 14, category: "Reels", title: "Creative Reel II", views: "3.2M", videoUrl: reel2 },
-  { id: 15, category: "Reels", title: "Creative Reel III", views: "2.7M", videoUrl: reel3 },
-  { id: 16, category: "Reels", title: "Creative Reel IV", views: "5.1M", videoUrl: reel4 },
-  { id: 17, category: "Reels", title: "Creative Reel V", views: "3.8M", videoUrl: reel5 },
-  { id: 18, category: "Reels", title: "Creative Reel VI", views: "4.2M", videoUrl: reel6 },
-  { id: 19, category: "Reels", title: "Creative Reel VII", views: "3.5M", videoUrl: reel7 },
-];
 
 const ReelCard = forwardRef<HTMLDivElement, {
   reel: Reel;
   index: number;
-  onSelect: (id: number) => void;
+  onSelect: (reel: Reel) => void;
 }>(({
   reel,
   index,
@@ -100,7 +44,6 @@ const ReelCard = forwardRef<HTMLDivElement, {
   }, []);
 
   return (
-
     <motion.div
       ref={ref}
       layout
@@ -115,7 +58,7 @@ const ReelCard = forwardRef<HTMLDivElement, {
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onClick={() => onSelect(reel.id)}
+      onClick={() => onSelect(reel)}
     >
       {/* Video preview - displayed directly */}
       {reel.videoUrl ? (
@@ -169,12 +112,29 @@ const ReelCard = forwardRef<HTMLDivElement, {
 ReelCard.displayName = "ReelCard";
 
 const ReelShowcase = () => {
+  const [reels, setReels] = useState<Reel[]>([]);
   const [activeCategory, setActiveCategory] = useState("All");
-  const [selectedReel, setSelectedReel] = useState<number | null>(null);
+  const [selectedReel, setSelectedReel] = useState<Reel | null>(null);
   const [isMuted, setIsMuted] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const modalVideoRef = useRef<HTMLVideoElement>(null);
   const ITEMS_PER_PAGE = 12;
+
+  useEffect(() => {
+    const fetchReels = async () => {
+      try {
+        const response = await client.queries.reelConnection();
+        const edges = response.data.reelConnection.edges || [];
+        setReels(edges.map((edge: any) => ({
+          id: edge.node.id,
+          ...edge.node
+        })));
+      } catch (error) {
+        console.error("Error fetching reels:", error);
+      }
+    };
+    fetchReels();
+  }, []);
 
   const filtered =
     activeCategory === "All"
@@ -196,8 +156,6 @@ const ReelShowcase = () => {
     setCurrentPage(page);
     document.getElementById("reels")?.scrollIntoView({ behavior: "smooth" });
   };
-
-  const selectedReelData = reels.find((r) => r.id === selectedReel);
 
   const toggleMute = useCallback(() => {
     setIsMuted((prev) => {
@@ -246,7 +204,7 @@ const ReelShowcase = () => {
         <AnimatePresence mode="popLayout">
           {currentReels.map((reel, i) => (
             <ReelCard
-              key={reel.id}
+              key={reel.id || i}
               reel={reel}
               index={i}
               onSelect={setSelectedReel}
@@ -280,7 +238,7 @@ const ReelShowcase = () => {
 
       {/* Fullscreen modal with video player */}
       <AnimatePresence>
-        {selectedReel && selectedReelData && (
+        {selectedReel && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -301,11 +259,11 @@ const ReelShowcase = () => {
               className="max-w-3xl w-full flex flex-col items-center"
               onClick={(e) => e.stopPropagation()}
             >
-              {selectedReelData.videoUrl ? (
+              {selectedReel.videoUrl ? (
                 <div className="relative rounded-xl overflow-hidden shadow-2xl h-[80vh] w-auto aspect-[9/16]">
                   <video
                     ref={modalVideoRef}
-                    src={selectedReelData.videoUrl}
+                    src={selectedReel.videoUrl}
                     autoPlay
                     loop
                     muted={isMuted}
@@ -326,18 +284,18 @@ const ReelShowcase = () => {
               ) : (
                 <div className="relative rounded-xl overflow-hidden shadow-2xl h-[80vh] w-auto aspect-[9/16]">
                   <img
-                    src={selectedReelData.thumb}
-                    alt={selectedReelData.title}
+                    src={selectedReel.thumb}
+                    alt={selectedReel.title}
                     className="w-full h-full object-cover"
                   />
                 </div>
               )}
               <div className="text-center mt-6">
                 <h3 className="font-display text-3xl text-foreground">
-                  {selectedReelData.title}
+                  {selectedReel.title}
                 </h3>
                 <p className="text-muted-foreground font-body text-sm mt-1">
-                  {selectedReelData.views} views • {selectedReelData.category}
+                  {selectedReel.views} views • {selectedReel.category}
                 </p>
               </div>
             </motion.div>
