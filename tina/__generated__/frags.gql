@@ -1,0 +1,71 @@
+fragment PostParts on Post {
+  __typename
+  title
+  coverImage
+  date
+  excerpt
+  body
+}
+
+fragment ProjectParts on Project {
+  __typename
+  title
+  videoUrl
+  duration
+  location
+  genre
+  year
+}
+
+fragment ReelParts on Reel {
+  __typename
+  title
+  category
+  views
+  videoUrl
+  thumb
+}
+
+fragment HomepageParts on Homepage {
+  __typename
+  hero {
+    __typename
+    titleLine1
+    titleLine2
+    subtitle
+    backgroundMedia
+  }
+  about {
+    __typename
+    title
+    subtitle
+    bioParagraph1
+    bioParagraph2
+    profileImage
+    stats {
+      __typename
+      value
+      label
+    }
+  }
+  services {
+    __typename
+    title
+    desc
+    emoji
+    iconName
+  }
+  testimonials {
+    __typename
+    user
+    avatar
+    text
+    time
+  }
+  contact {
+    __typename
+    email
+    phone
+    location
+  }
+}
